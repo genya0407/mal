@@ -44,7 +44,7 @@ all help:
 # Command line settings
 #
 
-MAL_IMPL = myrust
+MAL_IMPL = myruby
 
 # cbm or qbasic
 basic_MODE = cbm
@@ -85,7 +85,7 @@ IMPLS = ada awk bash basic c chuck clojure coffee common-lisp cpp crystal cs d d
 	guile haskell haxe hy io java js julia kotlin livescript logo lua make mal \
 	matlab miniMAL nasm nim objc objpascal ocaml perl perl6 php picolisp plpgsql \
 	plsql powershell ps python r racket rexx rpython ruby rust scala scheme skew \
-	swift swift3 tcl ts vb vhdl vimscript wasm yorick myrust
+	swift swift3 tcl ts vb vhdl vimscript wasm yorick myruby
 
 EXTENSION = .mal
 
@@ -171,7 +171,7 @@ scheme_STEP_TO_PROG_cyclone     = scheme/$($(1))
 scheme_STEP_TO_PROG_foment      = scheme/$($(1)).scm
 
 # Map of step (e.g. "step8") to executable file for that step
-myrust_STEP_TO_PROG = myrust/$($(1)).rs
+myruby_STEP_TO_PROG = myruby/$($(1)).rb
 ada_STEP_TO_PROG =     ada/$($(1))
 awk_STEP_TO_PROG =     awk/$($(1)).awk
 bash_STEP_TO_PROG =    bash/$($(1)).sh
