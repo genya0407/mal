@@ -1,0 +1,11 @@
+[package]
+name = "myrust"
+version = "0.1.0"
+authors = ["Yusuke Sangenya <longinus.eva@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+
+[[bin]]
+name = "step0_repl"
+path = "src/step0_repl.rs"
