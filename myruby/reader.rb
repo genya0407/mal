@@ -52,6 +52,7 @@ class Reader
     self.next
     loop do
       if self.peek == ')'
+        self.next
         break
       elsif self.peek.nil?
         raise "Parens not matched!"
