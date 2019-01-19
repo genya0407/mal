@@ -40,7 +40,7 @@ class Reader
   end
 
   def read_form
-    if self.peek == '('
+    if self.left_paren?
       self.read_list
     else
       self.read_atom
@@ -51,7 +51,7 @@ class Reader
     ast = []
     self.next
     loop do
-      if self.peek == ')'
+      if self.right_paren?
         self.next
         break
       elsif self.peek.nil?
@@ -65,15 +65,22 @@ class Reader
   end
 
   def read_atom
-    atom = self.next
-    if self.int?(atom)
-      atom.to_i
+    if self.int?
+      self.next.to_i
     else
-      atom.to_sym
+      self.next.to_sym
     end
   end
 
-  def int?(atom)
-    atom.match(/\d+/)
+  def int?
+    self.peek.match(/\d+/)
+  end
+
+  def left_paren?
+    self.peek == '(' || self.peek == '['
+  end
+
+  def right_paren?
+    self.peek == ')' || self.peek == ']'
   end
 end
