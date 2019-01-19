@@ -1,3 +1,5 @@
+require './values'
+
 class Reader
   PCRE = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"|;.*|[^\s\[\]{}('"`,;)]*)/.freeze
 
@@ -65,15 +67,42 @@ class Reader
   end
 
   def read_atom
-    if self.int?
+    if self.isint?
       self.next.to_i
+    elsif self.istrue?
+      self.next
+      Value::True
+    elsif self.isfalse?
+      self.next
+      Value::False
+    elsif self.isnil?
+      self.next
+      Value::Nil
+    elsif self.isstring?
+      Value::String.new(self.next.match(/"(.*)"/)[1])
     else
       self.next.to_sym
     end
   end
 
-  def int?
-    self.peek.match(/\d+/)
+  def isint?
+    self.peek.match(/^\s*\d+\s*/)
+  end
+
+  def istrue?
+    self.peek == 'true'
+  end
+
+  def isfalse?
+    self.peek == 'false'
+  end
+
+  def isnil?
+    self.peek == 'nil'
+  end
+
+  def isstring?
+    !self.peek.match(/"(.*)"/).nil?
   end
 
   def left_paren?
