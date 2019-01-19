@@ -2,53 +2,77 @@ def rep(ast, env)
   EVAL(ast, env)
 end
 
+Fn = Struct.new(:ast, :params, :env, :fn)
+
 def EVAL(ast, env)
-  if ast.is_a?(Array)
-    if ast.size == 0
-      ast
-    else
-      case ast[0]
-      when :def!
-        env.set(ast[1], EVAL(ast[2], env))
-      when :'let*'
-        new_env = Env.new(env)
-        new_bindings = ast[1]
-        new_bindings.each_slice(2) do |k, v|
-          new_env.set(k, EVAL(v, new_env))
-        end
-        EVAL(ast[2], new_env)
-      when :do
-        ast[1..-1].map { |a| EVAL(a, env) }.to_a.last
-      when :if
-        cond = ast[1]
-        left = ast[2]
-        right = ast[3]
-        case EVAL(cond, env)
-        when Value::False
-          if right.nil?
-            Value::Nil
-          else
-            EVAL(right, env)
-          end
-        when Value::Nil
-          EVAL(right, env)
-        else
-          EVAL(left, env)
-        end
-      when :'fn*'
-        binds = ast[1]
-        body = ast[2]
-        proc do |*exprs|
-          func_env = Env.new(env, binds: binds, exprs: exprs)
-          EVAL(body, func_env)
-        end
+  loop do
+    if ast.is_a?(Array)
+      if ast.size == 0
+        return ast
       else
-        lst = eval_ast(ast, env)
-        lst[0].call(*lst[1..-1])
+        case ast[0]
+        when :def!
+          return env.set(ast[1], EVAL(ast[2], env))
+        when :'let*'
+          new_env = Env.new(env)
+          new_bindings = ast[1]
+          new_bindings.each_slice(2) do |k, v|
+            new_env.set(k, EVAL(v, new_env))
+          end
+          ast = ast[2]
+          env = new_env
+          next
+          # return EVAL(ast[2], new_env)
+        when :do
+          ast[1..-2].map { |a| EVAL(a, env) }
+          ast = ast.last
+          next
+          # return ast[1..-1].map { |a| EVAL(a, env) }.to_a.last
+        when :if
+          cond = ast[1]
+          left = ast[2]
+          right = ast[3]
+          case EVAL(cond, env)
+          when Value::False
+            if right.nil?
+              return Value::Nil
+            else
+              ast = right
+              next
+              # return EVAL(right, env)
+            end
+          when Value::Nil
+            ast = right
+            next
+            # return EVAL(right, env)
+          else
+            ast = left
+            next
+            # return EVAL(left, env)
+          end
+        when :'fn*'
+          body = ast[2]
+          params = ast[1]
+          fn = proc do |*exprs|
+            func_env = Env.new(env, binds: params, exprs: exprs)
+            EVAL(body, func_env)
+          end
+          return Fn.new(body, params, env, fn)
+        else
+          lst = eval_ast(ast, env)
+          fn = lst[0]
+          if fn.is_a?(Fn)
+            ast = fn.ast
+            env = Env.new(fn.env, binds: fn.params, exprs: lst[1..-1])
+            next
+          else
+            return fn.call(*lst[1..-1])
+          end
+        end
       end
+    else
+      return eval_ast(ast, env)
     end
-  else
-    eval_ast(ast, env)
   end
 end
 
