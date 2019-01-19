@@ -1,3 +1,5 @@
 require './reader'
+require './evaluator'
 
-Reader.read_str("(+ 1 2)")
+ast = Reader.read_str("(- (+ 5 2) 10)")
+rep(ast)
